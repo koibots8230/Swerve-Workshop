@@ -42,15 +42,21 @@ public class Swerve extends SubsystemBase {
 
     public void setIsBlue(Boolean allianceColour){
       isBlue = allianceColour;
+      simHeading = (isBlue ? new Rotation2d() : new Rotation2d(Math.PI));
+      estimatedPose = new Pose2d(0,0,simHeading);
       }
+
+    public void ZeroSimGyro(){
+      simHeading = new Rotation2d();
+    }
 
     private void fieldRelitiveDrive(LinearVelocity x, LinearVelocity y, AngularVelocity omega){
       simHeading = new Rotation2d(omega.times(Second.of(.02)));
-      estimatedPose = new Pose2d(((x.baseUnitMagnitude() / 20) * (isBlue ? -1 : 1) + estimatedPose.getX()), (y.baseUnitMagnitude() / 20) * (isBlue ? -1 : 1) + estimatedPose.getY(), simHeading.plus(new Rotation2d (estimatedPose.getRotation().getRadians())));
+      estimatedPose = new Pose2d(((x.baseUnitMagnitude() / 20) * (isBlue ? -1 : 1) + estimatedPose.getX()), (y.baseUnitMagnitude() / 20) * (isBlue ? -1 : 1) + estimatedPose.getY(), simHeading.plus(new Rotation2d(estimatedPose.getRotation().getRadians())));
 
     }
 
     public Command driveCommand(DoubleSupplier x, DoubleSupplier y, DoubleSupplier omega){
-      return Commands.run(() -> fieldRelitiveDrive(MetersPerSecond.of(x.getAsDouble()), MetersPerSecond.of(y.getAsDouble()), RotationsPerSecond.of(omega.getAsDouble())), this);
+      return Commands.run(() -> fieldRelitiveDrive(MetersPerSecond.of(x.getAsDouble()), MetersPerSecond.of(y.getAsDouble()), RotationsPerSecond.of(-omega.getAsDouble())), this);
     }
 }
