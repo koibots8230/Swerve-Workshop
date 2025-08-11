@@ -27,12 +27,10 @@ public class Swerve extends SubsystemBase {
   private Pose2d estimatedPose;
   private SwerveModuleState[] moduleStates;
   private ChassisSpeeds chassisSpeeds;  
-  private Rotation2d simHeading;
 
     public Swerve(){
 
       estimatedPose = new Pose2d();
-      simHeading = new Rotation2d();
 
       moduleStates = new SwerveModuleState[4];
     }
@@ -42,8 +40,7 @@ public class Swerve extends SubsystemBase {
       }
 
     private void fieldRelitiveDrive(LinearVelocity x, LinearVelocity y, AngularVelocity omega){
-      simHeading = new Rotation2d(omega.times(Second.of(.02)));
-      estimatedPose = new Pose2d(((x.baseUnitMagnitude() / 20) * (isBlue ? -1 : 1) + estimatedPose.getX()), (y.baseUnitMagnitude() / 20) * (isBlue ? -1 : 1) + estimatedPose.getY(), simHeading.plus(new Rotation2d (estimatedPose.getRotation().getRadians())));
+      estimatedPose = new Pose2d(((x.baseUnitMagnitude() / 20) * (isBlue ? -1 : 1) + estimatedPose.getX()), (y.baseUnitMagnitude() / 20) * (isBlue ? -1 : 1) + estimatedPose.getY(), new Rotation2d(-omega.baseUnitMagnitude()).plus(estimatedPose.getRotation()));
 
     }
 
