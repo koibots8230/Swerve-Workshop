@@ -6,9 +6,6 @@ import static edu.wpi.first.units.Units.Second;
 
 import java.util.function.DoubleSupplier;
 
-import com.ctre.phoenix6.swerve.SwerveModuleConstants;
-import com.ctre.phoenix6.swerve.jni.SwerveJNI.ModuleState;
-
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
