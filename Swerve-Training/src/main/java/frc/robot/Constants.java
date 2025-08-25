@@ -24,6 +24,7 @@ public class Constants {
 
         public static final double ROBOT_WIDTH = edu.wpi.first.math.util.Units.inchesToMeters(23.5);
         public static final double ROBOT_LENGTH = edu.wpi.first.math.util.Units.inchesToMeters(23.5);
+        public static final double CLOCK = 50;
 
     }
     

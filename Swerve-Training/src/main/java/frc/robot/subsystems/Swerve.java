@@ -10,10 +10,13 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.jni.SwerveJNI.ModuleState;
 
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.NotLogged;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.Kinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -30,10 +33,11 @@ public class Swerve extends SubsystemBase {
   private boolean isBlue;
   private Pose2d estimatedPose;
   private SwerveModuleState[] moduleStates;
-  private SwerveModuleState[] realModuleStates;
+  private SwerveModuleState[] messuredModuleStates;
   private ChassisSpeeds chassisSpeeds;  
   private Rotation2d simHeading;
-  private final Modules modules;
+@NotLogged  private final Modules modules;
+@NotLogged  private final SwerveDrivePoseEstimator odometry;
   
     public class Modules{
       final SwerveModule frontLeftModule;
@@ -47,8 +51,7 @@ public class Swerve extends SubsystemBase {
         frontRightModule = new SwerveModule();
         backLeftModule = new SwerveModule();
         backRightModule = new SwerveModule();
-        }
-
+      }
     }
 
     
@@ -62,22 +65,29 @@ public class Swerve extends SubsystemBase {
       chassisSpeeds = new ChassisSpeeds();
 
       moduleStates = new SwerveModuleState[4];
-      realModuleStates = new SwerveModuleState[4];
+      messuredModuleStates = new SwerveModuleState[4];
+
+      odometry = new SwerveDrivePoseEstimator(
+        SwerveConstants.KINEMATICS,
+        simHeading,
+        modulePosition(),
+        estimatedPose
+        );
     }
 
-    public void setIsBlue(Boolean allianceColour){
+    public void setIsBlue(Boolean allianceColour) {
       isBlue = allianceColour;
       simHeading = (isBlue ? new Rotation2d() : new Rotation2d(Math.PI));
       estimatedPose = new Pose2d(0,0,simHeading);
-      }
+    }
 
-    public void ZeroSimGyro(){
+    public void ZeroSimGyro() {
       simHeading = new Rotation2d();
     }
 
     private void fieldRelitiveDrive(LinearVelocity x, LinearVelocity y, AngularVelocity omega){
-      simHeading = new Rotation2d(omega.times(Second.of(.02)));
-      estimatedPose = new Pose2d(((x.baseUnitMagnitude() / 20) * (isBlue ? -1 : 1) + estimatedPose.getX()), (y.baseUnitMagnitude() / 20) * (isBlue ? -1 : 1) + estimatedPose.getY(), simHeading.plus(new Rotation2d(estimatedPose.getRotation().getRadians())));
+      simHeading = simHeading.plus(new Rotation2d(omega.times(Second.of(.02))));
+      estimatedPose = odometry.getEstimatedPosition();
       chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(x.in(MetersPerSecond) * SwerveConstants.MAX_LINEAR_VELOCITY.baseUnitMagnitude(), y.in(MetersPerSecond) * SwerveConstants.MAX_LINEAR_VELOCITY.baseUnitMagnitude(), omega.in(RotationsPerSecond) * SwerveConstants.MAX_ANGULAR_VELOCITY.baseUnitMagnitude(), simHeading);
       moduleStates = SwerveConstants.KINEMATICS.toSwerveModuleStates(chassisSpeeds);
 
@@ -86,10 +96,21 @@ public class Swerve extends SubsystemBase {
       modules.backLeftModule.setState(moduleStates[2]);
       modules.backRightModule.setState(moduleStates[3]);
       
-      realModuleStates[0] = modules.frontLeftModule.getState();
-      realModuleStates[1] = modules.frontRightModule.getState();
-      realModuleStates[2] = modules.backLeftModule.getState();
-      realModuleStates[3] = modules.backRightModule.getState();
+      messuredModuleStates[0] = modules.frontLeftModule.getState();
+      messuredModuleStates[1] = modules.frontRightModule.getState();
+      messuredModuleStates[2] = modules.backLeftModule.getState();
+      messuredModuleStates[3] = modules.backRightModule.getState();
+
+      odometry.update(simHeading, this.modulePosition());
+    }
+
+    private SwerveModulePosition[] modulePosition(){
+      return new SwerveModulePosition[] {
+        modules.frontLeftModule.getPosition(),
+        modules.frontRightModule.getPosition(),
+        modules.backLeftModule.getPosition(),
+        modules.backRightModule.getPosition()
+      };
     }
 
     public Command driveCommand(DoubleSupplier x, DoubleSupplier y, DoubleSupplier omega){

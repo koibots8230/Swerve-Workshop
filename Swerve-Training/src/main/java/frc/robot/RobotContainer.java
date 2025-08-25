@@ -32,7 +32,7 @@ public class RobotContainer {
   }
 
   private void defualtCommands(){
-    swerve.setDefaultCommand(swerve.driveCommand(xboxController::getLeftY, xboxController::getLeftX, xboxController::getRightX)); // left Y left X right X
+    swerve.setDefaultCommand(swerve.driveCommand(xboxController::getLeftX, xboxController::getLeftX, xboxController::getLeftY)); // left Y left X right X
   }
 
   public void allianceColour(){
