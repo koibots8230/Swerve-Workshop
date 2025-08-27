@@ -99,7 +99,7 @@ public class Swerve extends SubsystemBase {
       messuredModuleStates[2] = modules.backLeftModule.getState();
       messuredModuleStates[3] = modules.backRightModule.getState();
 
-      odometry.update(simHeading, this.modulePosition());
+      estimatedPose = odometry.update(simHeading, this.modulePosition());
     }
 
     @Override
@@ -114,7 +114,6 @@ public class Swerve extends SubsystemBase {
     }
 
     private void fieldRelitiveDrive(LinearVelocity x, LinearVelocity y, AngularVelocity omega){
-      estimatedPose = odometry.getEstimatedPosition();
       chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(x.in(MetersPerSecond) * SwerveConstants.MAX_LINEAR_VELOCITY.baseUnitMagnitude(), y.in(MetersPerSecond) * SwerveConstants.MAX_LINEAR_VELOCITY.baseUnitMagnitude(), omega.in(RotationsPerSecond) * SwerveConstants.MAX_ANGULAR_VELOCITY.baseUnitMagnitude(), simHeading);
       moduleStates = SwerveConstants.KINEMATICS.toSwerveModuleStates(chassisSpeeds);
 
