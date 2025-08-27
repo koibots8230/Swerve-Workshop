@@ -81,27 +81,43 @@ public class Swerve extends SubsystemBase {
       estimatedPose = new Pose2d(0,0,simHeading);
     }
 
-    public void ZeroSimGyro() {
+    public void zeroSimGyro() {
       simHeading = new Rotation2d();
     }
 
-    private void fieldRelitiveDrive(LinearVelocity x, LinearVelocity y, AngularVelocity omega){
-      simHeading = simHeading.plus(new Rotation2d(omega.times(Second.of(.02))));
-      estimatedPose = odometry.getEstimatedPosition();
-      chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(x.in(MetersPerSecond) * SwerveConstants.MAX_LINEAR_VELOCITY.baseUnitMagnitude(), y.in(MetersPerSecond) * SwerveConstants.MAX_LINEAR_VELOCITY.baseUnitMagnitude(), omega.in(RotationsPerSecond) * SwerveConstants.MAX_ANGULAR_VELOCITY.baseUnitMagnitude(), simHeading);
-      moduleStates = SwerveConstants.KINEMATICS.toSwerveModuleStates(chassisSpeeds);
+
+    @Override
+    public void periodic() {
 
       modules.frontLeftModule.setState(moduleStates[0]);
       modules.frontRightModule.setState(moduleStates[1]);
       modules.backLeftModule.setState(moduleStates[2]);
       modules.backRightModule.setState(moduleStates[3]);
-      
+
       messuredModuleStates[0] = modules.frontLeftModule.getState();
       messuredModuleStates[1] = modules.frontRightModule.getState();
       messuredModuleStates[2] = modules.backLeftModule.getState();
       messuredModuleStates[3] = modules.backRightModule.getState();
 
       odometry.update(simHeading, this.modulePosition());
+    }
+
+    @Override
+    public void simulationPeriodic() {
+      simHeading = simHeading.plus(new Rotation2d(chassisSpeeds.omegaRadiansPerSecond * 0.02));
+
+      modules.frontLeftModule.simulationPeriodic();
+      modules.frontRightModule.simulationPeriodic();
+      modules.backLeftModule.simulationPeriodic();
+      modules.backRightModule.simulationPeriodic();
+      
+    }
+
+    private void fieldRelitiveDrive(LinearVelocity x, LinearVelocity y, AngularVelocity omega){
+      estimatedPose = odometry.getEstimatedPosition();
+      chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(x.in(MetersPerSecond) * SwerveConstants.MAX_LINEAR_VELOCITY.baseUnitMagnitude(), y.in(MetersPerSecond) * SwerveConstants.MAX_LINEAR_VELOCITY.baseUnitMagnitude(), omega.in(RotationsPerSecond) * SwerveConstants.MAX_ANGULAR_VELOCITY.baseUnitMagnitude(), simHeading);
+      moduleStates = SwerveConstants.KINEMATICS.toSwerveModuleStates(chassisSpeeds);
+
     }
 
     private SwerveModulePosition[] modulePosition(){

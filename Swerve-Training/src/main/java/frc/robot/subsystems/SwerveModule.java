@@ -16,6 +16,8 @@ public class SwerveModule {
 
     private Angle turnSetpointAngle;
     private LinearVelocity driveSetpointVelocity;
+    // private double 
+    // private double 
     double position; 
     Rotation2d angle;
     
@@ -23,18 +25,27 @@ public class SwerveModule {
 
         position = 0;
         angle = new Rotation2d();
+        driveSetpointVelocity = LinearVelocity.ofBaseUnits(0, MetersPerSecond);
+        turnSetpointAngle = Radians.of(0);
 
     }
 
     public void setState(SwerveModuleState state){
         driveSetpointVelocity = MetersPerSecond.of(state.speedMetersPerSecond);
         turnSetpointAngle = Radians.of(state.angle.getRadians());
-        position = (((driveSetpointVelocity.baseUnitMagnitude() / RobotConstants.CLOCK) + position));
-        angle = new Rotation2d(state.angle.getRadians());
         }
+    
+    public void periodic(){
+
+    }
+
+    public void simulationPeriodic(){
+        position = (((driveSetpointVelocity.baseUnitMagnitude() / RobotConstants.CLOCK) + position));
+        angle = new Rotation2d(turnSetpointAngle);
+    }
 
     public SwerveModuleState getState(){
-        return new SwerveModuleState(driveSetpointVelocity, new Rotation2d(turnSetpointAngle));
+        return new SwerveModuleState(position, angle);
     }
 
     public SwerveModulePosition getPosition() {
