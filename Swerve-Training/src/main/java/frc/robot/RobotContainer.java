@@ -20,7 +20,6 @@ public class RobotContainer {
   private final Swerve swerve;
 
   public RobotContainer() {
-
     swerve = new Swerve();
     xboxController = new CommandXboxController(0);
 

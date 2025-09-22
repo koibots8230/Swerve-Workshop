@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.Second;
 
 import java.util.function.DoubleSupplier;
 
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.jni.SwerveJNI.ModuleState;
 
@@ -36,6 +37,8 @@ public class Swerve extends SubsystemBase {
   private SwerveModuleState[] messuredModuleStates;
   private ChassisSpeeds chassisSpeeds;  
   private Rotation2d simHeading;
+  private Rotation2d gyroAngle;
+  private final Pigeon2 gyro;
 @NotLogged  private final Modules modules;
 @NotLogged  private final SwerveDrivePoseEstimator odometry;
   
@@ -47,10 +50,10 @@ public class Swerve extends SubsystemBase {
 
 
       public Modules(){
-        frontLeftModule = new SwerveModule();
-        frontRightModule = new SwerveModule();
-        backLeftModule = new SwerveModule();
-        backRightModule = new SwerveModule();
+        frontLeftModule = new SwerveModule(SwerveConstants.FRONT_LEFT_DRIVE_MOTOR_ID, SwerveConstants.FRONT_LEFT_TURN_MOTOR_ID);
+        frontRightModule = new SwerveModule(SwerveConstants.FRONT_RIGHT_DRIVE_MOTOR_ID, SwerveConstants.FRONT_RIGHT_TURN_MOTOR_ID);
+        backLeftModule = new SwerveModule(SwerveConstants.BACK_LEFT_DRIVE_MOTOR_ID, SwerveConstants.BACK_LEFT_TURN_MOTOR_ID);
+        backRightModule = new SwerveModule(SwerveConstants.BACK_RIGHT_DRIVE_MOTOR_ID, SwerveConstants.BACK_RIGHT_TURN_MOTOR_ID);
       }
     }
 
@@ -58,10 +61,13 @@ public class Swerve extends SubsystemBase {
 
     public Swerve(){
 
+      gyro = new Pigeon2(9);
+
       modules = new Modules();
 
       estimatedPose = new Pose2d();
       simHeading = new Rotation2d();
+      gyroAngle = gyro.getRotation2d();
       chassisSpeeds = new ChassisSpeeds();
 
       moduleStates = new SwerveModuleState[4];
@@ -69,10 +75,13 @@ public class Swerve extends SubsystemBase {
 
       odometry = new SwerveDrivePoseEstimator(
         SwerveConstants.KINEMATICS,
-        simHeading,
+        gyroAngle,
         modulePosition(),
         estimatedPose
         );
+      
+
+
     }
 
     public void setIsBlue(Boolean allianceColour) {
@@ -105,6 +114,7 @@ public class Swerve extends SubsystemBase {
     @Override
     public void simulationPeriodic() {
       simHeading = simHeading.plus(new Rotation2d(chassisSpeeds.omegaRadiansPerSecond * 0.02));
+      gyroAngle = simHeading;
 
       modules.frontLeftModule.simulationPeriodic();
       modules.frontRightModule.simulationPeriodic();
