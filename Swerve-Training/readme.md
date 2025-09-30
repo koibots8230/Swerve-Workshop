@@ -6,7 +6,7 @@ The purpose of this workshop is to teach you how to create your own swerve drive
 For example, an objective might be **simulating the robot driving**. You are encouraged to try and complete these objectives on your own first. However, each section will include:
 - An explanation of any new concepts
 - A written guide to follow
-- Example code (if necessary)
+- Example code (use only if necessary)
 
 The example code should be your **last resort** or used to check your work.
 
