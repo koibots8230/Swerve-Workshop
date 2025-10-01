@@ -38,9 +38,9 @@ public class Swerve extends SubsystemBase {
   private void fieldRelitiveDrive(LinearVelocity x, LinearVelocity y, AngularVelocity omega) {
     estimatedPose =
         new Pose2d(
-            ((x.baseUnitMagnitude() / 20) * (isBlue ? -1 : 1) + estimatedPose.getX()),
-            (y.baseUnitMagnitude() / 20) * (isBlue ? -1 : 1) + estimatedPose.getY(),
-            new Rotation2d(-omega.baseUnitMagnitude()).plus(estimatedPose.getRotation()));
+            ((x.baseUnitMagnitude() / 50 * 4) * (isBlue ? -1 : 1) + estimatedPose.getX()),
+            (y.baseUnitMagnitude() / 50 * 4) * (isBlue ? -1 : 1) + estimatedPose.getY(),
+            new Rotation2d(-omega.baseUnitMagnitude()).div(50).plus(estimatedPose.getRotation()));
   }
 
   public Command driveCommand(DoubleSupplier x, DoubleSupplier y, DoubleSupplier omega) {
