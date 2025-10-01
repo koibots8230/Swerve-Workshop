@@ -9,15 +9,13 @@ import frc.robot.subsystems.*;
 
 @Logged
 public class RobotContainer {
-
-  private boolean isBlue;
-  @NotLogged private final CommandXboxController xboxController;
+  
   private final Swerve swerve;
 
   public RobotContainer() {
 
     swerve = new Swerve();
-    xboxController = new CommandXboxController(0);
+
 
     configureBindings();
     defualtCommands();
