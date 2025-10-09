@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.RobotConstants;
 import frc.robot.subsystems.*;
 
 @Logged
@@ -22,7 +23,7 @@ public class RobotContainer {
 
     swerve = new Swerve();
 
-    xboxKid = new CommandXboxController(0);
+    xboxKid = new CommandXboxController(RobotConstants.CONTROLLER_PORT);
 
     configureBindings();
     defualtCommands();
@@ -33,15 +34,15 @@ public class RobotContainer {
   private void configureBindings() {
     swerve.setDefaultCommand(
       swerve.happyMeal(
-        Double.valueOf(xboxKid::getLeftY), 
-        Double.valueOf(xboxKid::getLeftX), 
-        Double.valueOf(xboxKid::getRight)
+        xboxKid::getLeftY, 
+        xboxKid::getLeftX, 
+        xboxKid::getRightX
       )
     );
   
     Trigger buttonA = xboxKid.a();
-    buttonA.onTrue(System.out.println("A button pressed"))
-    buttonA.onFalse(System.out.println("A button released"));
+    buttonA.onTrue(swerve.startHappyness());
+    buttonA.onFalse(swerve.endHappyness());
   
   }
 
