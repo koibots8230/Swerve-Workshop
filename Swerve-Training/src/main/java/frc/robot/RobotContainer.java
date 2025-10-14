@@ -32,6 +32,13 @@ public class RobotContainer {
   
 
   private void configureBindings() {
+    Trigger buttonA = xboxKid.a();
+    buttonA.onTrue(swerve.startHappyness());
+    buttonA.onFalse(swerve.endHappyness());
+  }
+
+
+  private void defualtCommands() {
     swerve.setDefaultCommand(
       swerve.happyMeal(
         xboxKid::getLeftY, 
@@ -39,15 +46,7 @@ public class RobotContainer {
         xboxKid::getRightX
       )
     );
-  
-    Trigger buttonA = xboxKid.a();
-    buttonA.onTrue(swerve.startHappyness());
-    buttonA.onFalse(swerve.endHappyness());
-  
   }
-
-
-  private void defualtCommands() {}
 
 
   public Command getAutonomousCommand() {
