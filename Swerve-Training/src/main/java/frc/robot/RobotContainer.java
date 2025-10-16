@@ -1,10 +1,6 @@
 package frc.robot;
 
-import java.io.Console;
-
 import edu.wpi.first.epilogue.Logged;
-import edu.wpi.first.epilogue.NotLogged;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -14,7 +10,7 @@ import frc.robot.subsystems.*;
 
 @Logged
 public class RobotContainer {
-  
+
   private final Swerve swerve;
 
   private final CommandXboxController xboxKid;
@@ -29,7 +25,9 @@ public class RobotContainer {
     defualtCommands();
   }
 
-  
+  // private void blueGuy() {
+
+  // }
 
   private void configureBindings() {
     Trigger buttonA = xboxKid.a();
@@ -37,17 +35,10 @@ public class RobotContainer {
     buttonA.onFalse(swerve.endHappyness());
   }
 
-
   private void defualtCommands() {
     swerve.setDefaultCommand(
-      swerve.happyMeal(
-        xboxKid::getLeftY, 
-        xboxKid::getLeftX, 
-        xboxKid::getRightX
-      )
-    );
+        swerve.happyMeal(xboxKid::getLeftY, xboxKid::getLeftX, xboxKid::getRightX));
   }
-
 
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");
