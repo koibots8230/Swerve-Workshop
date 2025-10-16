@@ -17,19 +17,25 @@ import java.util.function.DoubleSupplier;
 @Logged
 public class Swerve extends SubsystemBase {
   private Pose2d simPos;
+  private boolean isRed;
 
-  public Swerve() {
-
+  public Swerve(boolean isRed) {
     simPos = new Pose2d();
+    isRed = false;
   }
 
-  // * (isBlue ? 1 : -1)
   private void beHappy(LinearVelocity blah1, LinearVelocity blah2, AngularVelocity blah3) {
     simPos =
         new Pose2d(
-            blah1.baseUnitMagnitude() / RobotConstants.CLOCK_SPEED * SwerveConstants.MAX_SPEED
+            blah1.baseUnitMagnitude()
+                    / RobotConstants.CLOCK_SPEED
+                    * SwerveConstants.MAX_SPEED
+                    * (isRed ? 1 : -1)
                 + simPos.getX(),
-            blah2.baseUnitMagnitude() / RobotConstants.CLOCK_SPEED * SwerveConstants.MAX_SPEED
+            blah2.baseUnitMagnitude()
+                    / RobotConstants.CLOCK_SPEED
+                    * SwerveConstants.MAX_SPEED
+                    * (isRed ? 1 : -1)
                 + simPos.getY(),
             new Rotation2d(-blah3.baseUnitMagnitude())
                 .div((RobotConstants.CLOCK_SPEED))
@@ -38,6 +44,10 @@ public class Swerve extends SubsystemBase {
 
   private void beHappy2(boolean happy) {
     System.out.println("I'm happy now!");
+  }
+
+  public void setIsRed(boolean hmmm_maybeRed) {
+    isRed = hmmm_maybeRed;
   }
 
   public Command happyMeal(DoubleSupplier blah1, DoubleSupplier blah2, DoubleSupplier blah3) {
