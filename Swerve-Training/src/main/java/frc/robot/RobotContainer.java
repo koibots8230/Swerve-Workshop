@@ -2,6 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.NotLogged;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -13,11 +14,12 @@ public class RobotContainer {
   private boolean isBlue;
   @NotLogged private final CommandXboxController xboxController;
   private final Swerve swerve;
+  Boolean color;
 
   public RobotContainer() {
 
     swerve = new Swerve();
-    xboxController = new CommandXboxController(0);
+    xboxController = new CommandXboxController(Constants.RobotConstants.CONTROLLER_PORT);
 
     configureBindings();
     defualtCommands();
@@ -25,7 +27,16 @@ public class RobotContainer {
 
   private void configureBindings() {}
 
-  private void defualtCommands() {}
+  private void defualtCommands() {
+    swerve.setDefaultCommand(
+        swerve.driveCommand(
+            xboxController::getLeftX, xboxController::getLeftY, xboxController::getRightX));
+  }
+
+  private void setColor() {
+    boolean color = DriverStation.getAlliance() != null;
+    swerve.setIsBlue(color);
+  }
 
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");
