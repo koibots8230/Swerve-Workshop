@@ -8,12 +8,11 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.*;
 
-
 @Logged
 public class RobotContainer {
 
   private boolean isBlue;
- @NotLogged private final CommandXboxController xboxController;
+  @NotLogged private final CommandXboxController xboxController;
   private final Swerve swerve;
 
   public RobotContainer() {
@@ -25,24 +24,22 @@ public class RobotContainer {
     defualtCommands();
   }
 
-  private void configureBindings() {
+  private void configureBindings() {}
+
+  private void defualtCommands() {
+    swerve.setDefaultCommand(
+        swerve.driveCommand(
+            xboxController::getLeftY,
+            xboxController::getLeftY,
+            xboxController::getLeftX)); // left Y left X right X
   }
 
-  private void defualtCommands(){
-    swerve.setDefaultCommand(swerve.driveCommand(xboxController::getLeftY, xboxController::getLeftY, xboxController::getLeftX)); // left Y left X right X
-  }
-
-  public void allianceColour(){
+  public void allianceColour() {
     isBlue = (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue);
     swerve.setIsBlue(isBlue);
-    }
-  
+  }
 
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");
   }
-
-
-
-
 }
