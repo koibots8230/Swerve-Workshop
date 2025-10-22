@@ -35,8 +35,8 @@ This keeps your simulated robot facing the correct direction relative to the fie
 #### Step 3: Integrate Heading into Pose
 To use your simulated heading:
 1. Replace your use of `omega` with `simHeading`.  
-2. Create a new `Rotation2d` from `omega` and assign it to `simHeading`.  
-3. When updating `Pose2d`, add `simHeading` as the **rotation (z)** component.  
+2. Set simHeading equal to inself and add the change in roation every clock cycle. 
+3. Remeber that FRC types don't allow you to use opperators (+,-,*,/) instead you need to use the inbuilt methods. 
 
 This ensures that the pose rotates correctly as the robot “turns” in simulation.
 
@@ -45,7 +45,7 @@ This ensures that the pose rotates correctly as the robot “turns” in simulat
 ### Zeroing the Gyro
 
 #### Step 1: Create a Reset Method
-Inside `Swerve.java`, create a new method (e.g. `zeroSimGyro()`) that sets the rotation to **0 radians (or π if needed)**.
+Inside `Swerve.java`, create a new method (e.g. `zeroSimGyro()`) that sets the rotation to **0 radians**.
 
 #### Step 2: Usage Note
 > **Important:**  
