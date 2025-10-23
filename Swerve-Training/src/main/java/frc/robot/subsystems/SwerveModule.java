@@ -10,21 +10,17 @@ import edu.wpi.first.units.measure.LinearVelocity;
 
 public class SwerveModule {
 
-    private Angle turnSetpointAngle;
-    private LinearVelocity driveSetpointVelocity;
-    
-    public SwerveModule(){
+  private Angle turnSetpointAngle;
+  private LinearVelocity driveSetpointVelocity;
 
-    }
+  public SwerveModule() {}
 
-    public void setState(SwerveModuleState state){
-        driveSetpointVelocity = MetersPerSecond.of(state.speedMetersPerSecond);
-        turnSetpointAngle = Radians.of(state.angle.getRadians());
-        }
+  public void setState(SwerveModuleState state) {
+    driveSetpointVelocity = MetersPerSecond.of(state.speedMetersPerSecond);
+    turnSetpointAngle = Radians.of(state.angle.getRadians());
+  }
 
-    public SwerveModuleState getState(){
-       
-       
-        return new SwerveModuleState(driveSetpointVelocity, new Rotation2d(turnSetpointAngle));
-    }
+  public SwerveModuleState getState() {
+    return new SwerveModuleState(driveSetpointVelocity, new Rotation2d(turnSetpointAngle));
+  }
 }
