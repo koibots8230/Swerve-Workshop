@@ -35,7 +35,7 @@ Create two new variables:
 
 ### Update setState Method
 In your `setState` method:
-1. Create a **driveSetpointAngle** using information from the methods parameter
+1. Create a **driveSetpointVelocity** using information from the methods parameter
 2. Create a **turnSetpointAngle** using information from the methods parameter
 3. Use both setpoints to update your position and angle variables
    - **position** should track where each module is
