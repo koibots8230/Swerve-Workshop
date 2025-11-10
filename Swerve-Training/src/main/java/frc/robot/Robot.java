@@ -61,7 +61,6 @@ public class Robot extends TimedRobot {
     }
 
     m_robotContainer.allianceColour();
-
   }
 
   @Override
