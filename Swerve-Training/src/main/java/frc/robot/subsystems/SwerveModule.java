@@ -20,6 +20,8 @@ import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
+
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.NotLogged;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -38,6 +40,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.SwerveConstants;
 
+@Logged
 public class SwerveModule {
 
   @NotLogged private final SparkMax turnMotor;
@@ -53,8 +56,8 @@ public class SwerveModule {
   @NotLogged private final SparkClosedLoopController driveController;
 
   @NotLogged private final TrapezoidProfile profile;
-  @NotLogged private TrapezoidProfile.State goalState;
-  @NotLogged private TrapezoidProfile.State motorSetpoint;
+  private TrapezoidProfile.State goalState;
+  private TrapezoidProfile.State motorSetpoint;
 
   @NotLogged private final SimpleMotorFeedforward turnFeedforward;
 
@@ -174,7 +177,7 @@ public class SwerveModule {
     driveMotorPosition = driveEncoder.getPosition();
     turnMotorPosition = Rotation2d.fromRadians(turnEncoder.getPosition() - offsetAngle.getRadians());
 
-    goalState = new State(turnSetpointAngle.in(Radians) + offsetAngle.getRadians(), 0);
+    goalState = new State(MathUtil.angleModulus(turnSetpointAngle.in(Radians)) + offsetAngle.getRadians(), 0);
 
     motorSetpoint = profile.calculate(1 / RobotConstants.CLOCK, motorSetpoint, goalState);
 

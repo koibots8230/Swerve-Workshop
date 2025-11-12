@@ -11,6 +11,7 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.*;
@@ -27,7 +28,7 @@ public class Swerve extends SubsystemBase {
 
   private boolean isBlue;
   private Pose2d estimatedPose;
-  private SwerveModuleState[] moduleStates;
+  private SwerveModuleState[] setpointStates;
   private SwerveModuleState[] messuredModuleStates;
   private ChassisSpeeds chassisSpeeds;
   private Rotation2d simHeading;
@@ -36,6 +37,7 @@ public class Swerve extends SubsystemBase {
   private final Modules modules;
   @NotLogged private final SwerveDrivePoseEstimator odometry;
 
+  @Logged
   public class Modules {
     final SwerveModule frontLeftModule;
     final SwerveModule frontRightModule;
@@ -70,7 +72,7 @@ public class Swerve extends SubsystemBase {
     gyroAngle = gyro.getRotation2d();
     chassisSpeeds = new ChassisSpeeds();
 
-    moduleStates = new SwerveModuleState[4];
+    setpointStates = new SwerveModuleState[4];
     messuredModuleStates = new SwerveModuleState[4];
 
     odometry =
@@ -101,7 +103,8 @@ public class Swerve extends SubsystemBase {
     messuredModuleStates[2] = modules.backLeftModule.getState();
     messuredModuleStates[3] = modules.backRightModule.getState();
 
-    estimatedPose = odometry.update(simHeading, this.modulePosition());
+    estimatedPose = odometry.update(isBlue ? gyroAngle : gyroAngle.minus(new Rotation2d(Math.PI)),
+    this.modulePosition());
 
     gyroAngle = gyro.getRotation2d();
   }
@@ -123,14 +126,16 @@ public class Swerve extends SubsystemBase {
             x.in(MetersPerSecond) * SwerveConstants.MAX_LINEAR_VELOCITY.baseUnitMagnitude(),
             y.in(MetersPerSecond) * SwerveConstants.MAX_LINEAR_VELOCITY.baseUnitMagnitude(),
             omega.in(RotationsPerSecond) * SwerveConstants.MAX_ANGULAR_VELOCITY.baseUnitMagnitude(),
-            simHeading);
+            gyroAngle);
 
-    moduleStates = SwerveConstants.KINEMATICS.toSwerveModuleStates(chassisSpeeds);
+    setpointStates = SwerveConstants.KINEMATICS.toSwerveModuleStates(chassisSpeeds);
 
-    modules.frontLeftModule.setState(moduleStates[0]);
-    modules.frontRightModule.setState(moduleStates[1]);
-    modules.backLeftModule.setState(moduleStates[2]);
-    modules.backRightModule.setState(moduleStates[3]);
+    SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, SwerveConstants.MAX_LINEAR_VELOCITY);
+
+    modules.frontLeftModule.setState(setpointStates[0]);
+    modules.frontRightModule.setState(setpointStates[1]);
+    modules.backLeftModule.setState(setpointStates[2]);
+    modules.backRightModule.setState(setpointStates[3]);
   }
 
   private SwerveModulePosition[] modulePosition() {
