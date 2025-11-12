@@ -32,8 +32,8 @@ public class Swerve extends SubsystemBase {
   private ChassisSpeeds chassisSpeeds;
   private Rotation2d simHeading;
   private Rotation2d gyroAngle;
-  private final Pigeon2 gyro;
-  @NotLogged private final Modules modules;
+  @NotLogged private final Pigeon2 gyro;
+  private final Modules modules;
   @NotLogged private final SwerveDrivePoseEstimator odometry;
 
   public class Modules {
@@ -91,10 +91,10 @@ public class Swerve extends SubsystemBase {
   @Override
   public void periodic() {
 
-    modules.frontLeftModule.setState(moduleStates[0]);
-    modules.frontRightModule.setState(moduleStates[1]);
-    modules.backLeftModule.setState(moduleStates[2]);
-    modules.backRightModule.setState(moduleStates[3]);
+    modules.frontLeftModule.periodic();
+    modules.frontRightModule.periodic();
+    modules.backLeftModule.periodic();
+    modules.backRightModule.periodic();
 
     messuredModuleStates[0] = modules.frontLeftModule.getState();
     messuredModuleStates[1] = modules.frontRightModule.getState();
@@ -102,6 +102,8 @@ public class Swerve extends SubsystemBase {
     messuredModuleStates[3] = modules.backRightModule.getState();
 
     estimatedPose = odometry.update(simHeading, this.modulePosition());
+
+    gyroAngle = gyro.getRotation2d();
   }
 
   @Override
@@ -122,15 +124,21 @@ public class Swerve extends SubsystemBase {
             y.in(MetersPerSecond) * SwerveConstants.MAX_LINEAR_VELOCITY.baseUnitMagnitude(),
             omega.in(RotationsPerSecond) * SwerveConstants.MAX_ANGULAR_VELOCITY.baseUnitMagnitude(),
             simHeading);
+
     moduleStates = SwerveConstants.KINEMATICS.toSwerveModuleStates(chassisSpeeds);
+
+    modules.frontLeftModule.setState(moduleStates[0]);
+    modules.frontRightModule.setState(moduleStates[1]);
+    modules.backLeftModule.setState(moduleStates[2]);
+    modules.backRightModule.setState(moduleStates[3]);
   }
 
   private SwerveModulePosition[] modulePosition() {
     return new SwerveModulePosition[] {
-      modules.frontLeftModule.getPosition(),
-      modules.frontRightModule.getPosition(),
-      modules.backLeftModule.getPosition(),
-      modules.backRightModule.getPosition()
+      modules.frontLeftModule.getSimDrivePosition(),
+      modules.frontRightModule.getSimDrivePosition(),
+      modules.backLeftModule.getSimDrivePosition(),
+      modules.backRightModule.getSimDrivePosition()
     };
   }
 

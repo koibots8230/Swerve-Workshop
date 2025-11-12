@@ -60,8 +60,7 @@ public class SwerveModule {
 
   private Angle turnSetpointAngle;
   private LinearVelocity driveSetpointVelocity;
-  double position;
-  Rotation2d angle;
+  double simDrivePosition;
   private final Rotation2d offsetAngle;
 
   private Current driveMotorCurrent;
@@ -74,7 +73,7 @@ public class SwerveModule {
   private AngularVelocity turnMotorVelocity;
 
   private double driveMotorPosition;
-  private double turnMotorPosition;
+  private Rotation2d turnMotorPosition;
 
   public SwerveModule(int driveMotorID, int TurnMotorID) {
 
@@ -140,8 +139,7 @@ public class SwerveModule {
         new SimpleMotorFeedforward(
             Constants.SwerveConstants.TURN_KS, Constants.SwerveConstants.TURN_KV);
 
-    position = 0;
-    angle = new Rotation2d();
+    simDrivePosition = 0;
     driveSetpointVelocity = LinearVelocity.ofBaseUnits(0, MetersPerSecond);
     turnSetpointAngle = Radians.of(0);
 
@@ -152,12 +150,12 @@ public class SwerveModule {
     driveMotorVelocity = driveEncoder.getVelocity();
     turnMotorVelocity = AngularVelocity.ofBaseUnits(turnEncoder.getVelocity(), RadiansPerSecond);
     driveMotorPosition = driveEncoder.getPosition();
-    turnMotorPosition = turnEncoder.getPosition();
+    turnMotorPosition = Rotation2d.fromRadians(turnEncoder.getPosition());
   }
 
   public void setState(SwerveModuleState state) {
-    state.optimize(Rotation2d.fromRadians(MathUtil.angleModulus(turnMotorPosition)));
-    state.speedMetersPerSecond *= Math.cos(state.angle.getRadians() - turnMotorPosition);
+    state.optimize(Rotation2d.fromRadians(MathUtil.angleModulus(turnMotorPosition.getRadians())));
+    state.speedMetersPerSecond *= Math.cos(state.angle.getRadians() - turnMotorPosition.getRadians());
 
     driveController.setReference(state.speedMetersPerSecond, ControlType.kVelocity);
 
@@ -174,7 +172,7 @@ public class SwerveModule {
     driveMotorVelocity = driveEncoder.getVelocity();
     turnMotorVelocity = AngularVelocity.ofBaseUnits(turnEncoder.getVelocity(), RadiansPerSecond);
     driveMotorPosition = driveEncoder.getPosition();
-    turnMotorPosition = turnEncoder.getPosition() - offsetAngle.getRadians();
+    turnMotorPosition = Rotation2d.fromRadians(turnEncoder.getPosition() - offsetAngle.getRadians());
 
     goalState = new State(turnSetpointAngle.in(Radians) + offsetAngle.getRadians(), 0);
 
@@ -188,16 +186,16 @@ public class SwerveModule {
   }
 
   public void simulationPeriodic() {
-    position = ((driveSetpointVelocity.baseUnitMagnitude() / RobotConstants.CLOCK) + position);
-    angle = new Rotation2d(turnSetpointAngle);
+    driveMotorPosition = ((driveSetpointVelocity.baseUnitMagnitude() / RobotConstants.CLOCK) + simDrivePosition);
+    turnMotorPosition = new Rotation2d(turnSetpointAngle);
     driveMotorVelocity = driveSetpointVelocity.in(MetersPerSecond);
   }
 
   public SwerveModuleState getState() {
-    return new SwerveModuleState(driveMotorVelocity, angle);
+    return new SwerveModuleState(driveMotorVelocity, turnMotorPosition);
   }
 
-  public SwerveModulePosition getPosition() {
-    return new SwerveModulePosition(position, angle);
+  public SwerveModulePosition getSimDrivePosition() {
+    return new SwerveModulePosition(driveMotorPosition, turnMotorPosition);
   }
 }
