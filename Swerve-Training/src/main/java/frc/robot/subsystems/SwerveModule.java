@@ -129,9 +129,9 @@ public class SwerveModule {
         SwerveConstants.DRIVE_D,
         SwerveConstants.DRIVE_KV);
 
-    turnMotor.configure(turnConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
     turnConfig.absoluteEncoder.inverted(true);
+
+    turnMotor.configure(turnConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     profile = new TrapezoidProfile(new Constraints(20 * Math.PI, 30 * Math.PI));
 
