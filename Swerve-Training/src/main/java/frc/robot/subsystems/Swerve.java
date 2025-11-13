@@ -63,7 +63,7 @@ public class Swerve extends SubsystemBase {
 
   public Swerve() {
 
-    gyro = new Pigeon2(9);
+    gyro = new Pigeon2(10);
 
     modules = new Modules();
 
