@@ -81,13 +81,13 @@ public class SwerveModule {
   public SwerveModule(int driveMotorID, int TurnMotorID) {
 
     if (driveMotorID == SwerveConstants.FRONT_LEFT_DRIVE_MOTOR_ID) {
-      offsetAngle = new Rotation2d((3 * Math.PI) / 2);
+      offsetAngle = new Rotation2d((Math.PI) / 2.0);
     } else if (driveMotorID == SwerveConstants.FRONT_RIGHT_DRIVE_MOTOR_ID) {
-      offsetAngle = new Rotation2d();
-    } else if (driveMotorID == SwerveConstants.BACK_LEFT_DRIVE_MOTOR_ID) {
       offsetAngle = new Rotation2d(Math.PI);
+    } else if (driveMotorID == SwerveConstants.BACK_LEFT_DRIVE_MOTOR_ID) {
+      offsetAngle = new Rotation2d(0);
     } else {
-      offsetAngle = new Rotation2d(Math.PI / 2);
+      offsetAngle = new Rotation2d((3 * Math.PI) / 2.0);
     }
 
     turnMotor = new SparkMax(TurnMotorID, MotorType.kBrushless);
