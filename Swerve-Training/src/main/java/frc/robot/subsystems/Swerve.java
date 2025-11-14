@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
@@ -36,6 +37,7 @@ public class Swerve extends SubsystemBase {
   @NotLogged private final Pigeon2 gyro;
   private final Modules modules;
   @NotLogged private final SwerveDrivePoseEstimator odometry;
+  private double speedScalar;
 
   @Logged
   public class Modules {
@@ -78,6 +80,8 @@ public class Swerve extends SubsystemBase {
     odometry =
         new SwerveDrivePoseEstimator(
             SwerveConstants.KINEMATICS, gyroAngle, modulePosition(), estimatedPose);
+
+    speedScalar = 1;
   }
 
   public void setIsBlue(Boolean allianceColour) {
@@ -138,6 +142,40 @@ public class Swerve extends SubsystemBase {
     modules.backRightModule.setState(setpointStates[3]);
   }
 
+  private void driveFieldRelativeScaler(double x, double y, double omega) {
+    double linearMagnitude = Math.pow(Math.hypot(x, y), SwerveConstants.TRANSLATION_SCALAR);
+
+    Rotation2d direction = new Rotation2d(y, x);
+
+    y =
+        linearMagnitude
+            * -direction.getCos()
+            * SwerveConstants.MAX_LINEAR_VELOCITY.in(MetersPerSecond);
+    x =
+        linearMagnitude
+            * -direction.getSin()
+            * SwerveConstants.MAX_LINEAR_VELOCITY.in(MetersPerSecond)
+            * speedScalar;
+
+    omega =
+        Math.pow(omega, SwerveConstants.ROTATION_SCALAR)
+            * SwerveConstants.MAX_ANGULAR_VELOCITY.in(RadiansPerSecond)
+            * speedScalar;
+
+    fieldRelitiveDrive(
+        MetersPerSecond.of(
+            MathUtil.applyDeadband(
+                x + (Math.sqrt(linearMagnitude) * (isBlue ? -1 : 1)),
+                SwerveConstants.DEADBAND)),
+        MetersPerSecond.of(
+            MathUtil.applyDeadband(
+                y + (Math.sqrt(linearMagnitude) * (isBlue ? -1 : 1)),
+                SwerveConstants.DEADBAND)),
+        RadiansPerSecond.of(
+            MathUtil.applyDeadband(
+                -omega, SwerveConstants.DEADBAND)));
+  }
+
   private SwerveModulePosition[] modulePosition() {
     return new SwerveModulePosition[] {
       modules.frontLeftModule.getSimDrivePosition(),
@@ -150,10 +188,10 @@ public class Swerve extends SubsystemBase {
   public Command driveCommand(DoubleSupplier x, DoubleSupplier y, DoubleSupplier omega) {
     return Commands.run(
         () ->
-            fieldRelitiveDrive(
-                MetersPerSecond.of(MathUtil.applyDeadband(x.getAsDouble(), 0.07)),
-                MetersPerSecond.of(MathUtil.applyDeadband(y.getAsDouble(), 0.07)),
-                RotationsPerSecond.of(MathUtil.applyDeadband((omega.getAsDouble()), 0.07))),
+            driveFieldRelativeScaler(
+                (MathUtil.applyDeadband(x.getAsDouble(), SwerveConstants.DEADBAND)),
+                (MathUtil.applyDeadband(y.getAsDouble(), SwerveConstants.DEADBAND)),
+                (MathUtil.applyDeadband((omega.getAsDouble()), SwerveConstants.DEADBAND))),
                 this);
   }
 }

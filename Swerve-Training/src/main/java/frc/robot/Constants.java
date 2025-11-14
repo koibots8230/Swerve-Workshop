@@ -45,6 +45,10 @@ public class Constants {
     public static final int BACK_LEFT_TURN_MOTOR_ID = 5;
     public static final int BACK_RIGHT_DRIVE_MOTOR_ID = 8;
     public static final int BACK_RIGHT_TURN_MOTOR_ID = 7;
+
+    public static final double DEADBAND = 0.07;
+    public static final double TRANSLATION_SCALAR = 2.0;
+    public static final double ROTATION_SCALAR = 1.0;
   }
 
   public static class RobotConstants {
