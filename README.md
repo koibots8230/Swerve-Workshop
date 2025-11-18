@@ -1,6 +1,6 @@
 # Swerve Drive Implementation Guide
 
-## 🎯 Goal
+## Goal
 We're building a working swerve drive! Here's our roadmap:
 - Update constants to match AnglerFish configuration
 - Integrate real gyro hardware
@@ -12,7 +12,7 @@ We're building a working swerve drive! Here's our roadmap:
 
 ---
 
-## 📚 Recommended Reading
+## Recommended Reading
 Before diving in, familiarize yourself with these resources:
 - [TrapezoidProfile JavaDoc](https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/trajectory/TrapezoidProfile.html)
 - [Trapezoidal Profiles Guide](https://docs.wpilib.org/en/stable/docs/software/advanced-controls/controllers/trapezoidal-profiles.html)
@@ -27,7 +27,7 @@ Before diving in, familiarize yourself with these resources:
 
 ---
 
-## 🧭 Gyro Integration
+## Gyro Integration
 **Add the Pigeon 2 Gyro to `Swerve.java`:**
 - Device ID: `10`
 - Replace `estimatedPose` calculations with actual gyro readings
