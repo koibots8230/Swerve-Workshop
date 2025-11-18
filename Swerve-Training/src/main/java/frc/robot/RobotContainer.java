@@ -30,11 +30,11 @@ public class RobotContainer {
   private void defualtCommands() {
     swerve.setDefaultCommand(
         swerve.driveCommand(
-            xboxController::getLeftX, xboxController::getLeftY, xboxController::getRightX));
+            xboxController::getLeftY, xboxController::getLeftX, xboxController::getRightX));
   }
 
-  private void setColor() {
-    boolean color = DriverStation.getAlliance() != null;
+  public void setColor() {
+    boolean color = (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue);
     swerve.setIsBlue(color);
   }
 
