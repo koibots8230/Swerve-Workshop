@@ -51,6 +51,7 @@ public class Swerve extends SubsystemBase {
     modulePositions = new SwerveModulePosition[4];
 
     gyro = new Pigeon2(SwerveConstants.GYRO_ID);
+    gyroHeading = gyro.getRotation2d();
 
     swerveDriveEstimatedPose = new SwerveDrivePoseEstimator(
       SwerveConstants.KINEMATICS, 
@@ -116,7 +117,12 @@ public class Swerve extends SubsystemBase {
 
   @Override
   public void periodic(){
-    
+    modules.frontLeftModule.periodic();
+    modules.frontRightModule.periodic();
+    modules.backLeftModule.periodic();
+    modules.backRightModule.periodic();
+
+    gyroHeading = gyro.getRotation2d();
   }
 
   public Command driveCommand(DoubleSupplier x, DoubleSupplier y, DoubleSupplier omega) {
