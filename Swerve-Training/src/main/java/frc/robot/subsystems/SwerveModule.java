@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.revrobotics.AbsoluteEncoder;
@@ -35,12 +36,13 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.SwerveConstants;
 
 
 
-public class SwerveModule{
+public class SwerveModule extends SubsystemBase{
 
     private Angle turnSetPointAngle;
     private LinearVelocity driveSetPointVelocity;
@@ -149,7 +151,7 @@ public class SwerveModule{
 
         turnFeedforward = new SimpleMotorFeedforward(SwerveConstants.TURN_FEEDFORWARD.ks, SwerveConstants.TURN_FEEDFORWARD.kv);
 
-        driveSetPoint = LinearVelocity.ofBaseUnits(0, Units.MetersPerSecond);
+        driveSetPoint = LinearVelocity.ofBaseUnits(0.0, Units.MetersPerSecond);
         turnSetPoint = Radians.of(0);
         drivePosition = driveEncoder.getPosition();
         turnPosition = turnEncoder.getPosition();
@@ -173,7 +175,8 @@ public class SwerveModule{
         
     }
 
-    public void periodic(){
+    @Override
+    public void periodic() {
         drivePosition = driveEncoder.getPosition();
         driveVelocity = driveEncoder.getVelocity();
         driveVoltage = Voltage.ofBaseUnits(driveMotor.getBusVoltage() * driveMotor.getAppliedOutput(), Volts);
@@ -196,6 +199,7 @@ public class SwerveModule{
             ClosedLoopSlot.kSlot0,
             turnFeedforward.calculate(turnSetpointState.velocity)
         );
+
     }
 
     public SwerveModuleState getState(){

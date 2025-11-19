@@ -22,12 +22,16 @@ import frc.robot.Constants.RobotConstants.SwerveConstants;
 import java.lang.reflect.Array;
 import java.util.function.DoubleSupplier;
 
+import com.ctre.phoenix6.hardware.Pigeon2;
+
 @Logged
 public class Swerve extends SubsystemBase {
 
   private Pose2d estimatedPose;
+  private Pigeon2 gyro;
   private boolean isBlue;
   private Rotation2d simHeading;
+  private Rotation2d gyroHeading;
   private ChassisSpeeds ChassisSpeeds;
   private SwerveModuleState[] moduleStates;
   private SwerveModuleState[] realModuleStates;
@@ -38,12 +42,15 @@ public class Swerve extends SubsystemBase {
   public Swerve() {
     estimatedPose = new Pose2d();
     simHeading = new Rotation2d();
+    gyroHeading = new Rotation2d();
     ChassisSpeeds = new ChassisSpeeds();
     modules = new Modules();
 
     moduleStates = new SwerveModuleState[4];
     realModuleStates = new SwerveModuleState[4];
     modulePositions = new SwerveModulePosition[4];
+
+    gyro = new Pigeon2(SwerveConstants.GYRO_ID);
 
     swerveDriveEstimatedPose = new SwerveDrivePoseEstimator(
       SwerveConstants.KINEMATICS, 
@@ -104,6 +111,11 @@ public class Swerve extends SubsystemBase {
     realModuleStates[1] = modules.frontRightModule.getState();
     realModuleStates[2] = modules.backLeftModule.getState();
     realModuleStates[3] = modules.backRightModule.getState();
+    
+  }
+
+  @Override
+  public void periodic(){
     
   }
 
