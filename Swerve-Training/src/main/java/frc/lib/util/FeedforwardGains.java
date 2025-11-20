@@ -24,10 +24,13 @@ public class FeedforwardGains {
   }
 
   public FeedforwardGains(int i, int j, int k) {
-    //TODO Auto-generated constructor stub
-}
+    this.ks = i;
+    this.kv = j;
+    this.ka = k;
+    this.kg = 0.0; // Default value for kg
+  }
 
-/**
+  /**
    * This class uses a Builder pattern to construct a FeedforwardGains Each of the four feedforward
    * gains have separate methods in the Builder. This is a more explicit way of creating a data
    * object with immutable data than using constructors. The FeedforwardGains can be built by

@@ -2,7 +2,9 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.*;
 
+import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.NotLogged;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -11,25 +13,18 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Robot;
-import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.SwerveConstants;
-
-import java.lang.reflect.Array;
 import java.util.function.DoubleSupplier;
-
-import com.ctre.phoenix6.hardware.Pigeon2;
 
 @Logged
 public class Swerve extends SubsystemBase {
 
   private Pose2d estimatedPose;
   private Pigeon2 gyro;
-  private boolean isBlue;
+  @NotLogged private boolean isBlue;
   private Rotation2d simHeading;
   private Rotation2d gyroHeading;
   private ChassisSpeeds ChassisSpeeds;
@@ -53,24 +48,27 @@ public class Swerve extends SubsystemBase {
     gyro = new Pigeon2(SwerveConstants.GYRO_ID);
     gyroHeading = gyro.getRotation2d();
 
-    swerveDriveEstimatedPose = new SwerveDrivePoseEstimator(
-      SwerveConstants.KINEMATICS, 
-      simHeading, 
-      getModulePositions(), 
-      estimatedPose
-    );
+    swerveDriveEstimatedPose =
+        new SwerveDrivePoseEstimator(
+            SwerveConstants.KINEMATICS, simHeading, getModulePositions(), estimatedPose);
   }
-  public class Modules{
+
+  public class Modules {
     final SwerveModule frontLeftModule;
     final SwerveModule frontRightModule;
     final SwerveModule backLeftModule;
     final SwerveModule backRightModule;
 
-    public Modules(){
-      frontLeftModule = new SwerveModule(SwerveConstants.FRONT_LEFT_DRIVE_ID, SwerveConstants.FRONT_LEFT_TURN_ID);
-      frontRightModule = new SwerveModule(SwerveConstants.FRONT_RIGHT_DRIVE_ID, SwerveConstants.FRONT_RIGHT_TURN_ID);
-      backLeftModule = new SwerveModule(SwerveConstants.BACK_LEFT_DRIVE_ID, SwerveConstants.BACK_LEFT_TURN_ID);
-      backRightModule = new SwerveModule(SwerveConstants.BACK_RIGHT_DRIVE_ID, SwerveConstants.BACK_RIGHT_TURN_ID);
+    public Modules() {
+      frontLeftModule =
+          new SwerveModule(SwerveConstants.FRONT_LEFT_DRIVE_ID, SwerveConstants.FRONT_LEFT_TURN_ID);
+      frontRightModule =
+          new SwerveModule(
+              SwerveConstants.FRONT_RIGHT_DRIVE_ID, SwerveConstants.FRONT_RIGHT_TURN_ID);
+      backLeftModule =
+          new SwerveModule(SwerveConstants.BACK_LEFT_DRIVE_ID, SwerveConstants.BACK_LEFT_TURN_ID);
+      backRightModule =
+          new SwerveModule(SwerveConstants.BACK_RIGHT_DRIVE_ID, SwerveConstants.BACK_RIGHT_TURN_ID);
     }
   }
 
@@ -78,12 +76,12 @@ public class Swerve extends SubsystemBase {
     isBlue = color;
     simHeading = isBlue ? Rotation2d.fromRadians(0) : Rotation2d.fromRadians(Math.PI);
   }
-  
+
   public void zeroGyro(boolean isBlue) {
-   new Rotation2d();
+    new Rotation2d();
   }
 
-  public SwerveModulePosition[] getModulePositions(){
+  public SwerveModulePosition[] getModulePositions() {
     modulePositions[0] = modules.frontLeftModule.getModulePosition();
     modulePositions[1] = modules.frontRightModule.getModulePosition();
     modulePositions[2] = modules.backLeftModule.getModulePosition();
@@ -93,14 +91,15 @@ public class Swerve extends SubsystemBase {
 
   private void fieldRelativeDrive(LinearVelocity x, LinearVelocity y, AngularVelocity omega) {
     simHeading = new Rotation2d(-omega.baseUnitMagnitude()).div(50).plus(simHeading);
-    swerveDriveEstimatedPose.update(simHeading,  modulePositions);
+    swerveDriveEstimatedPose.update(simHeading, modulePositions);
     estimatedPose = swerveDriveEstimatedPose.getEstimatedPosition();
-    ChassisSpeeds = edu.wpi.first.math.kinematics.ChassisSpeeds.fromFieldRelativeSpeeds(
-      x.in(MetersPerSecond) * SwerveConstants.MAX_LINEAR_VELOCITY.baseUnitMagnitude(), 
-      y.in(MetersPerSecond) * SwerveConstants.MAX_LINEAR_VELOCITY.baseUnitMagnitude(),
-      omega.in(RotationsPerSecond) * SwerveConstants.MAX_ANGULAR_VELOCITY.baseUnitMagnitude(),
-      simHeading);
-    
+    ChassisSpeeds =
+        edu.wpi.first.math.kinematics.ChassisSpeeds.fromFieldRelativeSpeeds(
+            x.in(MetersPerSecond) * SwerveConstants.MAX_LINEAR_VELOCITY.baseUnitMagnitude(),
+            y.in(MetersPerSecond) * SwerveConstants.MAX_LINEAR_VELOCITY.baseUnitMagnitude(),
+            omega.in(RotationsPerSecond) * SwerveConstants.MAX_ANGULAR_VELOCITY.baseUnitMagnitude(),
+            simHeading);
+
     moduleStates = SwerveConstants.KINEMATICS.toSwerveModuleStates(ChassisSpeeds);
 
     modules.frontLeftModule.setState(moduleStates[0]);
@@ -112,11 +111,10 @@ public class Swerve extends SubsystemBase {
     realModuleStates[1] = modules.frontRightModule.getState();
     realModuleStates[2] = modules.backLeftModule.getState();
     realModuleStates[3] = modules.backRightModule.getState();
-    
   }
 
   @Override
-  public void periodic(){
+  public void periodic() {
     modules.frontLeftModule.periodic();
     modules.frontRightModule.periodic();
     modules.backLeftModule.periodic();
